@@ -52,13 +52,11 @@ void Toggle(int &val)
   if (digitalRead(light[val]) == LOW)
   {
     digitalWrite(light[val], HIGH);
-    //Serial.println("LIGHT ON");
     PrintLight(light[val], "ON");
   }
   else
   {
     digitalWrite(light[val], LOW);
-    // Serial.println("LIGHT OFF");
     PrintLight(light[val], "OFF");
   }    
 }
