@@ -17,24 +17,10 @@ const int pin16 = 17; // A3
 
 int light[16] = {pin1,pin2,pin3,pin4,pin5,pin6,pin7,pin8,pin9,pin10,pin11,pin12,pin13,pin14,pin15,pin16};
 
-
 void setup() {
-  pinMode(pin1, OUTPUT);
-  pinMode(pin2, OUTPUT);
-  pinMode(pin3, OUTPUT);
-  pinMode(pin4, OUTPUT);
-  pinMode(pin5, OUTPUT);
-  pinMode(pin6, OUTPUT);
-  pinMode(pin7, OUTPUT);
-  pinMode(pin8, OUTPUT);
-  pinMode(pin9, OUTPUT);
-  pinMode(pin10, OUTPUT);
-  pinMode(pin11, OUTPUT);
-  pinMode(pin12, OUTPUT);
-  pinMode(pin13, OUTPUT);
-  pinMode(pin14, OUTPUT);
-  pinMode(pin15, OUTPUT);
-  pinMode(pin16, OUTPUT);
+  for (int i = 0; i < sizeof(light); i++) {
+    pinMode(light[i], OUTPUT);
+  }
   Serial.begin(9600);
   while(!Serial) {
     ; // Wait for serial to connect, only needed for native USB port
@@ -43,21 +29,18 @@ void setup() {
 
 void Toggle(int &val)
 {
-  if (val < 1 || val > 16)
-  {
+  int index = val-1; // Since array starts with 0
+  if (val < 1 || val > 16) {
     Serial.println("Invalid input range");
     return;
+  }  
+  if (digitalRead(light[index]) == LOW) {
+    digitalWrite(light[index], HIGH);
+    PrintLight(val, "ON");
   }
-  val -=1;
-  if (digitalRead(light[val]) == LOW)
-  {
-    digitalWrite(light[val], HIGH);
-    PrintLight(light[val], "ON");
-  }
-  else
-  {
-    digitalWrite(light[val], LOW);
-    PrintLight(light[val], "OFF");
+  else {
+    digitalWrite(light[index], LOW);
+    PrintLight(val, "OFF");
   }    
 }
 
@@ -65,7 +48,7 @@ void PrintLight(int number, String value)
 {
   Serial.print("Light No: ");
   Serial.print(number, DEC);
-  Serial.print(" Value ");
+  Serial.print(" Value: ");
   Serial.print(value);
   Serial.println();
 }
