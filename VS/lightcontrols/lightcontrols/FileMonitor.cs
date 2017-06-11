@@ -17,7 +17,8 @@ namespace lightcontrols
                 }
             }
             catch (IOException) {
-                Console.Write("File busy..");
+                Console.WriteLine("File busy.. Retry");
+                Read(path);
             }            
         }
 
@@ -62,11 +63,9 @@ namespace lightcontrols
 
         private void ClearFile(string filetoClear)
         {
-            //watcher.Changed -= new FileSystemEventHandler(OnChanged); // Disable onChanged event
             watcher.EnableRaisingEvents = false;
             File.WriteAllText(filetoClear, String.Empty); // Clear file
             watcher.EnableRaisingEvents = true;
-            //watcher.Changed += new FileSystemEventHandler(OnChanged); // Enable onChanged event
         }
 
         private void OnChanged(object source, FileSystemEventArgs e)
