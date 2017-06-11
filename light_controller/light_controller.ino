@@ -55,29 +55,38 @@ int GetLightStatus(int index)
   }
 }
 
-void loop() {
-  // Check and enable correct output  
-  if(Serial.available())
+void ParseSerialData()
+{
+  int cmd = Serial.parseInt();   
+  if (cmd == 255) {
+    PrintLights();
+  }
+  else if(cmd == 254) {
+    Serial.println(ver);
+  }
+  else
   {
-    int lightNo = Serial.parseInt();
-    int value = Serial.parseInt();
-    Serial.println(lightNo, DEC);
-    if (lightNo == 255) {
-      PrintLights();
-    }
-    else if(lightNo == 254) {
-      Serial.println(ver);
-    }
-    else if (lightNo < 1 || lightNo > 16) {
+    if (cmd < 1 || cmd > 16) {
       Serial.println("Invalid input range");
+      Serial.println(cmd, DEC);
     }      
     else {
+      int value = Serial.parseInt();
       if (value == 1) {
-        digitalWrite(light[lightNo-1], HIGH);
+        digitalWrite(light[cmd-1], HIGH);
       }
       else if(value == 0){
-        digitalWrite(light[lightNo-1], LOW);
+        digitalWrite(light[cmd-1], LOW);
       }
-    }    
+      PrintLight(cmd, GetLightStatus(cmd-1));
+    }  
+  }  
+}
+
+void loop() {
+  // Check for incoming data
+  if(Serial.available() > 0)
+  {
+    ParseSerialData();
   }  
 }
