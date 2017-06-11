@@ -1,67 +1,16 @@
 ﻿using System;
 using System.IO.Ports;
+using System.Threading;
 
 namespace lightcontrols
 {
     class Program
-    {
-        /// <summary>
-        /// Light enum, extra commands to arduino
-        /// </summary>
-        enum Cmd
-        {
-            getVersion = 254,
-            getLights = 255
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        enum Val
-        {
-            Off,
-            On
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        static SerialPort detectComPort()
-        {
-            // Get a list of serial port names.
-            string[] ports = SerialPort.GetPortNames();
-            foreach (string port in ports) {
-                SerialPort sp = new SerialPort(port, 9600);
-                try{
-                    sp.Open();                    
-                    sp.WriteLine("254");
-                    sp.ReadTimeout = 2000;
-                    for (int i = 0; i < 5; i++)
-                    {
-                        try
-                        {
-                            string reply = sp.ReadLine();
-                            if (reply.StartsWith("lightControls"))
-                            {
-                                Console.WriteLine(String.Format("{0} detected @ port {1}!", reply.Replace("\r",""), port));
-                                return sp;
-                            }
-                            else
-                            {
-                                Console.WriteLine(reply);
-                            };
-                        }catch (TimeoutException) { }
-                    }
-                }catch(Exception) {
-                    sp.Close();
-                    continue; // Serialport busy...
-                }
-            }
-            return null;
-        }
+    {        
         static void Main(string[] args)
         {
-            SerialPort COMport =  detectComPort();
+            SerialLineHandler serialHandler = new SerialLineHandler();
+            SerialPort COMport = serialHandler.ActiveComPort;
+
             if (COMport == null)
             {
                 Console.WriteLine("ERROR, Could not detect lightControl system!");
@@ -69,24 +18,20 @@ namespace lightcontrols
                 return;
             }
 
-            try
+            FileMonitor fileMonitor = new FileMonitor(serialHandler);
+
+            string[] test = new string[] { "255", "1,1", "2,1","3,1", "4,1", "5,1", "6,1", "7,1", "8,1", "9,1", "10,1", "11,1", "12,1", "13,1", "14,1", "15,1", "16,1","255" };
+
+            foreach (string cmd in test)
             {
-                if (args.Length == 1)
-                    COMport.WriteLine(String.Format("{0}\n", args[0].ToString()));
-                else if (args.Length == 2)
-                    COMport.WriteLine(String.Format("{0},{1}\n", args[0].ToString(), args[1].ToString()));
-                else { }
-                while (true)
-                {
-                    Console.WriteLine(COMport.ReadLine());
-                }
-            }catch (Exception ex) {
-                if (ex is TimeoutException) { }
-                else
-                    Console.WriteLine(ex.ToString());
-            };
-            COMport.Close();
-            Console.Read();
+                serialHandler.Write(cmd);
+            }
+
+            while (true)
+            {
+                string s = Console.ReadLine();
+                serialHandler.Write(s);
+            }
         }
     }
 }
