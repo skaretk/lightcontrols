@@ -10,18 +10,55 @@ namespace lightcontrols
     /// <summary>
     /// Light enum, extra commands to arduino
     /// </summary>
-    enum Cmd
+    enum Command
     {
+        light1 = 1,
+        light2,
+        light3,
+        light4,
+        light5,
+        light6,
+        light7,
+        light8,
+        light9,
+        light10,
+        light11,
+        light12,
+        light13,
+        light14,
+        light15,
+        light16,
         getVersion = 254,
         getLights = 255
     }
     /// <summary>
     /// 
     /// </summary>
-    enum Val
+    enum Value
     {
         Off,
         On
+    }
+
+    class LightControllerCommand
+    {
+        public LightControllerCommand(Command cmd)
+        {
+            this.Cmd = cmd.ToString("D");
+        }
+        public LightControllerCommand(Command cmd, Value val)
+        {
+            this.Cmd = cmd.ToString("D");
+            this.Val = val.ToString("D");
+        }
+        
+        private string Cmd { get; set; }
+        private string Val { get; set; } = String.Empty;
+
+        public override string ToString()
+        {
+            return String.Format("{0},{1}", Cmd, Val);
+        }
     }
 
     /// <summary>

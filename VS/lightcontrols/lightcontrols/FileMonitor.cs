@@ -1,28 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace lightcontrols
 {
     class FileMonitor : LightControlInterface
     {
-        public void Read(string input)
+        public void Read(string path)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string[] data = File.ReadAllLines(path);
+                ClearFile(path);
+                foreach (string line in data)
+                {
+                    serialLineHandler.Write(line);
+                }
+            }
+            catch (IOException) {
+                Console.Write("File busy..");
+            }            
         }
 
         public void Write(string output)
         {
-            if (!File.Exists(path))
-            {
-                // Create a file to write to.
-                Console.WriteLine("Creating file {0}", path);
-            }
-
-            File.WriteAllText(path, output + "\n");
+            throw new NotImplementedException();
         }
 
         public FileMonitor(SerialLineHandler sh)
@@ -72,18 +73,7 @@ namespace lightcontrols
         {
             // Specify what is done when a file is changed, created, or deleted.
             Console.WriteLine("File: " + e.FullPath + " " + e.ChangeType);
-            try
-            {
-                string[] input = File.ReadAllLines(e.FullPath);
-                ClearFile(e.FullPath);
-                foreach (string line in input)
-                {
-                    serialLineHandler.Write(line);
-                }
-            }catch (IOException)
-            {
-                Console.Write("File busy..");
-            }
+            Read(e.FullPath);
         }
 
         private static void OnRenamed(object source, RenamedEventArgs e)
