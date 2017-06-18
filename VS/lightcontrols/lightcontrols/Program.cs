@@ -9,14 +9,16 @@ namespace lightcontrols
         static void Main(string[] args)
         {
             SerialLineHandler serialHandler = new SerialLineHandler();
-            SerialPort COMport = serialHandler.ActiveComPort;
-
-            if (COMport == null)
+            SerialPort COMport;
+            do
             {
-                Console.WriteLine("ERROR, Could not detect lightControl system!");
-                Console.ReadKey();
-                return;
-            }
+                COMport = serialHandler.ActiveComPort;
+                if (COMport == null)
+                {
+                    Console.WriteLine("{0} Could not detect lightControl system!", System.DateTime.Now.ToString());
+                    Thread.Sleep(1000);
+                }
+            } while (COMport == null);
 
             FileMonitor fileMonitor = new FileMonitor(serialHandler);
 
