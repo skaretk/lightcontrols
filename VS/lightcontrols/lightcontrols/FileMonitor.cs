@@ -5,7 +5,7 @@ namespace lightcontrols
 {
     class FileMonitor : LightControlInterface
     {
-        public void Read(string path)
+        public bool Read(string path)
         {
             try
             {
@@ -15,14 +15,16 @@ namespace lightcontrols
                 {
                     serialLineHandler.Write(line);
                 }
+                return true;
             }
             catch (IOException) {
                 Console.WriteLine("File busy.. Retry");
                 Read(path);
+                return false;
             }            
         }
 
-        public void Write(string output)
+        public bool Write(string output)
         {
             throw new NotImplementedException();
         }
@@ -45,6 +47,26 @@ namespace lightcontrols
             // Only watch text files.
             watcher.Filter = "*.cl";
 
+            Start();
+        }
+
+        ~FileMonitor()
+        {
+
+            Stop();
+            ClearFile(path);
+            serialLineHandler = null;
+            watcher = null;
+        }
+
+        SerialLineHandler serialLineHandler;
+        FileSystemWatcher watcher;
+
+        private string folder = @"c:\temp";
+        private string path = @"c:\temp\lightcontrol.cl";
+
+        public void Start()
+        {
             // Add event handlers.
             watcher.Changed += new FileSystemEventHandler(OnChanged);
             watcher.Created += new FileSystemEventHandler(OnChanged);
@@ -55,12 +77,16 @@ namespace lightcontrols
             watcher.EnableRaisingEvents = true;
         }
 
-        SerialLineHandler serialLineHandler;
-        FileSystemWatcher watcher;
-
-        private string folder = @"c:\temp";
-        private string path = @"c:\temp\lightcontrol.cl";
-
+        public void Stop()
+        {
+            watcher.EnableRaisingEvents = false;
+            // Remove event handlers.
+            watcher.Changed += new FileSystemEventHandler(OnChanged);
+            watcher.Created += new FileSystemEventHandler(OnChanged);
+            watcher.Deleted += new FileSystemEventHandler(OnChanged);
+            watcher.Renamed += new RenamedEventHandler(OnRenamed);     
+        }
+           
         private void ClearFile(string filetoClear)
         {
             watcher.EnableRaisingEvents = false;

@@ -7,24 +7,45 @@ namespace lightcontrols
 {
     class SerialLineHandler : LightControlInterface
     {
-        public void Read(string input)
+        public bool Read(string input)
         {
             Console.WriteLine(input);
+            return true;
         }
 
-        public void Write(string output)
+        public bool Write(LightControllerCommand command)
+        {
+            Console.WriteLine("Tx: {0}", command.ToString());
+            try
+            {
+                ActiveComPort.Write(command.ToString());
+                Thread.Sleep(1500);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }          
+        }
+        public bool Write(string output)
         {
             Console.WriteLine("Tx: {0}", output);
-            ActiveComPort.Write(output);
-            Thread.Sleep(1500);
+            try
+            {
+                ActiveComPort.Write(output);
+                Thread.Sleep(1500);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
         }
 
         public SerialLineHandler()
         {
-            if (ActiveComPort != null)
-            {
-                ActiveComPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
-            }
         }
 
         ~SerialLineHandler()
@@ -72,7 +93,8 @@ namespace lightcontrols
                             if (reply.StartsWith("lightControls"))
                             {
                                 Console.WriteLine(String.Format("{0} detected @ port {1}!", reply.Replace("\r", ""), port));
-                                return sp;
+                                sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+                            return sp;
                             }
                             else
                             {

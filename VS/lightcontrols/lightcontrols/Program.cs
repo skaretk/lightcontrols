@@ -6,11 +6,34 @@ using System.Threading;
 namespace lightcontrols
 {
     class Program
-    {        
+    {
+        static SerialLineHandler serialHandler;
+        static SerialPort COMport;
+        static FileMonitor fileMonitor;
+
         static void Main(string[] args)
         {
-            SerialLineHandler serialHandler = new SerialLineHandler();
-            SerialPort COMport;
+            Init();
+            PerformTests();
+            fileMonitor = new FileMonitor(serialHandler);
+
+            while (true)
+            {
+                string s = Console.ReadLine();
+                if (serialHandler.Write(s) == false)
+                    Init();
+            }
+        }
+        static void Init()
+        {
+            // Init all instances as null
+            if (fileMonitor != null)
+                fileMonitor.Stop();
+            serialHandler = null;
+            COMport = null;            
+            GC.Collect();
+
+            serialHandler = new SerialLineHandler();
             do
             {
                 COMport = serialHandler.ActiveComPort;
@@ -19,11 +42,12 @@ namespace lightcontrols
                     Console.WriteLine("{0} Could not detect lightControl system!", System.DateTime.Now.ToString());
                     Thread.Sleep(1000);
                 }
-            } while (COMport == null);
+            } while (COMport == null);            
+        }
 
-            FileMonitor fileMonitor = new FileMonitor(serialHandler);
-
-            LightControllerCommand[] testCmd = new LightControllerCommand[]
+        static void PerformTests()
+        {
+            List<LightControllerCommand> testCmd = new List<LightControllerCommand>
             {
                 new LightControllerCommand(Command.getLights),
                 new LightControllerCommand(Command.light1,Value.On),
@@ -42,19 +66,15 @@ namespace lightcontrols
                 new LightControllerCommand(Command.light14,Value.On),
                 new LightControllerCommand(Command.light15,Value.On),
                 new LightControllerCommand(Command.light16,Value.On),
+                new LightControllerCommand(Command.getLights)
             };
 
-            List <string> testCommands = new List<string> { "255", "1,1", "2,1", "3,1", "4,1", "5,1", "6,1", "7,1", "8,1", "9,1", "10,1", "11,1", "12,1", "13,1", "14,1", "15,1", "16,1", "255" };
-            foreach (string cmd in testCommands)
+            List<string> testCommands = new List<string> { "255", "1,1", "2,1", "3,1", "4,1", "5,1", "6,1", "7,1", "8,1", "9,1", "10,1", "11,1", "12,1", "13,1", "14,1", "15,1", "16,1", "255" };
+            foreach (LightControllerCommand cmd in testCmd)
             {
-                serialHandler.Write(cmd);
-            }
-
-            while (true)
-            {
-                string s = Console.ReadLine();
-                serialHandler.Write(s);
+                if (serialHandler.Write(cmd) == false)
+                    Init();
             }
         }
-    }
+    }    
 }

@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace lightcontrols
 {
-
     /// <summary>
     /// Light enum, extra commands to arduino
     /// </summary>
@@ -57,6 +52,8 @@ namespace lightcontrols
 
         public override string ToString()
         {
+            if (Val == String.Empty)
+                return String.Format("{0}", Cmd);
             return String.Format("{0},{1}", Cmd, Val);
         }
     }
@@ -71,12 +68,12 @@ namespace lightcontrols
         /// Read interface function
         /// </summary>
         /// <param name="args"></param>
-        void Read(string input);
+        bool Read(string input);
 
         /// <summary>
         /// Write interface function
         /// </summary>
         /// <param name="args"></param>
-        void Write(string output);
+        bool Write(string output);
     }
 }
