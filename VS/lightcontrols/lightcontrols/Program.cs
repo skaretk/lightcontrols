@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO.Ports;
 using System.Threading;
 
@@ -43,9 +44,8 @@ namespace lightcontrols
                 new LightControllerCommand(Command.light16,Value.On),
             };
 
-            string[] test = new string[] { "255", "1,1", "2,1","3,1", "4,1", "5,1", "6,1", "7,1", "8,1", "9,1", "10,1", "11,1", "12,1", "13,1", "14,1", "15,1", "16,1","255" };
-
-            foreach (string cmd in test)
+            List <string> testCommands = new List<string> { "255", "1,1", "2,1", "3,1", "4,1", "5,1", "6,1", "7,1", "8,1", "9,1", "10,1", "11,1", "12,1", "13,1", "14,1", "15,1", "16,1", "255" };
+            foreach (string cmd in testCommands)
             {
                 serialHandler.Write(cmd);
             }

@@ -21,7 +21,6 @@ namespace lightcontrols
 
         public SerialLineHandler()
         {
-            ActiveComPort = detectComPort();
             if (ActiveComPort != null)
             {
                 ActiveComPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
@@ -34,7 +33,20 @@ namespace lightcontrols
                 ActiveComPort.Close();
         }
 
-        public SerialPort ActiveComPort { get; set; }
+        private SerialPort activeComport { set; get;}
+        public SerialPort ActiveComPort
+        {
+            get
+            {
+                if (this.activeComport == null)
+                    this.activeComport = detectComPort();
+                return this.activeComport;
+            }
+            set
+            {
+                this.activeComport = value;
+            }
+        }
 
         /// <summary>
         /// Will search for the arduino over serial line
@@ -54,8 +66,6 @@ namespace lightcontrols
                     sp.Open();
                     sp.Write("254");
                     sp.ReadTimeout = 2000;
-                   /* for (int i = 0; i < 5; i++)
-                    {*/
                         try
                         {
                             string reply = sp.ReadLine();
@@ -69,11 +79,15 @@ namespace lightcontrols
                                 Console.WriteLine(reply);
                             };
                         }
-                        catch (TimeoutException) { }
-                   // }
+                        catch (TimeoutException)
+                        {
+                            Console.WriteLine(String.Format("Timeout {0}", port));
+                            sp.Close();
+                        }
                 }
                 catch (Exception)
                 {
+                    Console.WriteLine(String.Format("{0} busy...", port));
                     sp.Close();
                     continue; // Serialport busy...
                 }
