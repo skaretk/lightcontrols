@@ -53,8 +53,8 @@ namespace lightcontrols
         public override string ToString()
         {
             if (Val == String.Empty)
-                return String.Format("{0}", Cmd);
-            return String.Format("{0},{1}", Cmd, Val);
+                return String.Format("{0},\r", Cmd);
+            return String.Format("{0},{1}\r", Cmd, Val);
         }
     }
 

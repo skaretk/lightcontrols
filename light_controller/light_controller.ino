@@ -9,15 +9,17 @@ const int pin8 = 9;   // D9
 const int pin9 = 10;  // D10
 const int pin10 = 11; // D11
 const int pin11 = 12; // D12
-const int pin12 = 13; // D13
-const int pin13 = 14; // A0
-const int pin14 = 15; // A1
-const int pin15 = 16; // A2
-const int pin16 = 17; // A3
+const int pin12 = 18; // A4
+const int pin13 = 17; // A3
+const int pin14 = 16; // A2
+const int pin15 = 15; // A1
+const int pin16 = 14; // A0
 
 int light[16] = {pin1,pin2,pin3,pin4,pin5,pin6,pin7,pin8,pin9,pin10,pin11,pin12,pin13,pin14,pin15,pin16};
 #define NO_OF_LIGHTS  sizeof(light) / sizeof(light[0])
-String ver = "lightControls v0.1";
+String ver = "lightControls v0.2";
+
+String input;
 
 void setup() {
   for (int i = 0; i < NO_OF_LIGHTS; i++) {
@@ -27,6 +29,7 @@ void setup() {
   while(!Serial) {
     ; // Wait for serial to connect, only needed for native USB port
   }
+  Serial.println(ver + "\n");
 }
 
 void PrintLight(int number, int value)
@@ -55,38 +58,56 @@ int GetLightStatus(int index)
   }
 }
 
-void ParseSerialData()
+void ParseCommand(String command)
 {
-  int cmd = Serial.parseInt();   
-  if (cmd == 255) {
+  //Serial.println("Arduino parsing" + command);
+  String cmd;
+  String value;
+
+  cmd = command.substring(0, command.indexOf(","));
+  if (command == -1)
+    cmd = command;
+  else
+  {
+    value = command.substring(command.indexOf(",")+1);
+    if (value == -1)
+      value = "";
+  }
+  if (cmd.toInt() == 255) {
     PrintLights();
   }
-  else if(cmd == 254) {
+  else if(cmd.toInt() == 254) {
     Serial.println(ver);
   }
   else
   {
-    if (cmd < 1 || cmd > 16) {
-      Serial.println("Invalid input range");
-      Serial.println(cmd, DEC);
+    if (cmd.toInt() < 1 || cmd.toInt() > 16) {
+      Serial.print("Invalid input range ");
+      Serial.println(cmd);
     }      
     else {
-      int value = Serial.parseInt();
-      if (value == 1) {
-        digitalWrite(light[cmd-1], HIGH);
+      if (value.toInt() == 1) {
+        digitalWrite(light[cmd.toInt()-1], HIGH);
       }
-      else if(value == 0){
-        digitalWrite(light[cmd-1], LOW);
+      else if(value.toInt() == 0){
+        digitalWrite(light[cmd.toInt()-1], LOW);
       }
-      PrintLight(cmd, GetLightStatus(cmd-1));
+      PrintLight(cmd.toInt(), GetLightStatus(cmd.toInt()-1));
     }  
   }  
 }
 
 void loop() {
   // Check for incoming data
-  if(Serial.available() > 0)
+  if(Serial.available())
   {
-    ParseSerialData();
+    char c = Serial.read();
+    if (c == "\r" || c == 0x0d || c == 0x0a)
+    {
+      ParseCommand(input);
+      input= "";
+      }
+    else
+      input += c;
   }  
 }

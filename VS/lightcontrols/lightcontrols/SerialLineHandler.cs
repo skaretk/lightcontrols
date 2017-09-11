@@ -15,11 +15,11 @@ namespace lightcontrols
 
         public bool Write(LightControllerCommand command)
         {
-            Console.WriteLine("Tx: {0}", command.ToString());
+            Console.Write("Tx: {0}", command.ToString());
             try
             {
                 ActiveComPort.Write(command.ToString());
-                Thread.Sleep(1500);
+                Thread.Sleep(250);
                 return true;
             }
             catch (Exception ex)
@@ -30,11 +30,11 @@ namespace lightcontrols
         }
         public bool Write(string output)
         {
-            Console.WriteLine("Tx: {0}", output);
+            Console.Write("Tx: {0}", output);
             try
             {
                 ActiveComPort.Write(output);
-                Thread.Sleep(1500);
+                Thread.Sleep(250);
                 return true;
             }
             catch (Exception ex)
@@ -85,27 +85,29 @@ namespace lightcontrols
                 try
                 {
                     sp.Open();
-                    sp.Write("254");
+                    Thread.Sleep(1000);
+                    sp.Write("254,\r");
                     sp.ReadTimeout = 2000;
-                        try
+                    try
+                    {
+                        string reply = sp.ReadTo("\n");
+                        if (reply.StartsWith("lightControls"))
                         {
-                            string reply = sp.ReadLine();
-                            if (reply.StartsWith("lightControls"))
-                            {
-                                Console.WriteLine(String.Format("{0} detected @ port {1}!", reply.Replace("\r", ""), port));
-                                sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+                            Console.WriteLine(String.Format("{0} detected @ port {1}!", reply.Replace("\r", ""), port));
+                            sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
                             return sp;
-                            }
-                            else
-                            {
-                                Console.WriteLine(reply);
-                            };
                         }
-                        catch (TimeoutException)
+                        else
                         {
-                            Console.WriteLine(String.Format("Timeout {0}", port));
+                            Console.WriteLine(reply);
                             sp.Close();
-                        }
+                        };
+                    }
+                    catch (TimeoutException)
+                    {
+                        Console.WriteLine(String.Format("Timeout {0}", port));
+                        sp.Close();
+                    }
                 }
                 catch (Exception)
                 {
