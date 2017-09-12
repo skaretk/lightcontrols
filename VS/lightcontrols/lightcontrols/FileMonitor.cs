@@ -75,6 +75,7 @@ namespace lightcontrols
             // Begin watching.
             ClearFile(path);
             watcher.EnableRaisingEvents = true;
+            Console.WriteLine("Filewatcher started");
         }
 
         public void Stop()
@@ -84,7 +85,8 @@ namespace lightcontrols
             watcher.Changed += new FileSystemEventHandler(OnChanged);
             watcher.Created += new FileSystemEventHandler(OnChanged);
             watcher.Deleted += new FileSystemEventHandler(OnChanged);
-            watcher.Renamed += new RenamedEventHandler(OnRenamed);     
+            watcher.Renamed += new RenamedEventHandler(OnRenamed);
+            Console.WriteLine("Filewatcher stopped");
         }
            
         private void ClearFile(string filetoClear)

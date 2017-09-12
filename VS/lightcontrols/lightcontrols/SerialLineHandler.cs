@@ -15,7 +15,7 @@ namespace lightcontrols
 
         public bool Write(LightControllerCommand command)
         {
-            Console.Write("Tx: {0}", command.ToString());
+            Console.WriteLine("Sent: {0}", command.ToString());
             try
             {
                 ActiveComPort.Write(command.ToString());
@@ -30,10 +30,10 @@ namespace lightcontrols
         }
         public bool Write(string output)
         {
-            Console.Write("Tx: {0}", output);
+            Console.WriteLine("Sent: {0}", output);
             try
             {
-                ActiveComPort.Write(output);
+                ActiveComPort.Write(output+"\r");
                 Thread.Sleep(250);
                 return true;
             }
