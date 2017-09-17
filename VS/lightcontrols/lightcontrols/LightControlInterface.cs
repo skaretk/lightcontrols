@@ -23,6 +23,8 @@ namespace lightcontrols
         light14,
         light15,
         light16,
+        allLightsOn = 252,
+        allLightsOff = 253,
         getVersion = 254,
         getLights = 255
     }

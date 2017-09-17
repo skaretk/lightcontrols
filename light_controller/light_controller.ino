@@ -58,6 +58,22 @@ int GetLightStatus(int index)
   }
 }
 
+void TurnAllLightsOn()
+{
+  for (int i = 0; i< NO_OF_LIGHTS; i++) {
+    digitalWrite(light[i], HIGH);
+  }
+  Serial.println("All lights ON");
+}
+
+void TurnAllLightsOff()
+{
+  for (int i = 0; i< NO_OF_LIGHTS; i++) {
+    digitalWrite(light[i], LOW);
+  }
+  Serial.println("All lights OFF");
+}
+
 void ParseCommand(String command)
 {
   //Serial.println("Arduino parsing" + command);
@@ -78,6 +94,12 @@ void ParseCommand(String command)
   }
   else if(cmd.toInt() == 254) {
     Serial.println(ver);
+  }
+  else if(cmd.toInt() == 253) {
+    TurnAllLightsOff();
+  }
+  else if(cmd.toInt() == 252) {
+    TurnAllLightsOn();
   }
   else
   {
