@@ -17,7 +17,7 @@ const int pin16 = 14; // A0
 
 int light[16] = {pin1,pin2,pin3,pin4,pin5,pin6,pin7,pin8,pin9,pin10,pin11,pin12,pin13,pin14,pin15,pin16};
 #define NO_OF_LIGHTS  sizeof(light) / sizeof(light[0])
-String ver = "lightControls v0.2";
+String ver = "lightControls v1.0\nCreated by Kjetil Skaret - kskaret@gmail.com";
 
 String input;
 
@@ -76,7 +76,6 @@ void TurnAllLightsOff()
 
 void ParseCommand(String command)
 {
-  //Serial.println("Arduino parsing" + command);
   String cmd;
   String value;
 
