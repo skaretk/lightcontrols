@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 
 namespace lightcontrols
 {
-    class FileMonitor : LightControlInterface
+    class FileMonitor : LightControlInterface, IDisposable
     {
         public bool Read(string path)
         {
+            Thread.Sleep(1);
             try
             {
                 string[] data = File.ReadAllLines(path);
@@ -14,6 +16,7 @@ namespace lightcontrols
                 foreach (string line in data)
                 {
                     serialLineHandler.Write(line);
+                    Thread.Sleep(10);
                 }
                 return true;
             }
@@ -52,11 +55,10 @@ namespace lightcontrols
 
         ~FileMonitor()
         {
-
             Stop();
             ClearFile(path);
             serialLineHandler = null;
-            watcher = null;
+            Dispose();
         }
 
         SerialLineHandler serialLineHandler;
@@ -65,30 +67,38 @@ namespace lightcontrols
         private string folder = @"c:\temp";
         private string path = @"c:\temp\lightcontrol.cl";
 
+        /// <summary>
+        /// Add event handlers, and start monitoring the file
+        /// </summary>
         public void Start()
-        {
-            // Add event handlers.
+        {            
             watcher.Changed += new FileSystemEventHandler(OnChanged);
             watcher.Created += new FileSystemEventHandler(OnChanged);
             watcher.Deleted += new FileSystemEventHandler(OnChanged);
             watcher.Renamed += new RenamedEventHandler(OnRenamed);
-            // Begin watching.
+            
             ClearFile(path);
             watcher.EnableRaisingEvents = true;
-            Console.WriteLine("Filewatcher started");
+            Console.WriteLine("FileMonitor started");
         }
 
+        /// <summary>
+        /// Remove event handlers to stop monitoring of the file
+        /// </summary>
         public void Stop()
         {
             watcher.EnableRaisingEvents = false;
-            // Remove event handlers.
             watcher.Changed += new FileSystemEventHandler(OnChanged);
             watcher.Created += new FileSystemEventHandler(OnChanged);
             watcher.Deleted += new FileSystemEventHandler(OnChanged);
             watcher.Renamed += new RenamedEventHandler(OnRenamed);
-            Console.WriteLine("Filewatcher stopped");
+            Console.WriteLine("FileMonitor stopped");
         }
-           
+        
+        /// <summary>
+        /// Clear the file to get a fresh start
+        /// </summary>
+        /// <param name="filetoClear"></param>
         private void ClearFile(string filetoClear)
         {
             watcher.EnableRaisingEvents = false;
@@ -109,5 +119,9 @@ namespace lightcontrols
             Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
         }
 
+        public void Dispose()
+        {
+            watcher.Dispose();
+        }
     }
 }

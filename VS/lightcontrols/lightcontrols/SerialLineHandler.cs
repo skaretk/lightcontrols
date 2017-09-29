@@ -7,6 +7,7 @@ namespace lightcontrols
 {
     class SerialLineHandler : LightControlInterface
     {
+        const int BaudRate = 115200;
         public bool Read(string input)
         {
             Console.WriteLine(input);
@@ -81,11 +82,11 @@ namespace lightcontrols
             {
                 Console.WriteLine(String.Format("Searching.. {0}", port));
                 // Open serialport and try to request data to detect the lightcontrol system
-                SerialPort sp = new SerialPort(port, 9600);
+                SerialPort sp = new SerialPort(port, BaudRate);
                 try
                 {
                     sp.Open();
-                    Thread.Sleep(1000);
+                    // Thread.Sleep(2000);
                     sp.Write("254,\r");
                     sp.ReadTimeout = 2000;
                     try
@@ -123,9 +124,7 @@ namespace lightcontrols
         {
             SerialPort sp = (SerialPort)sender;
             string indata = sp.ReadExisting();
-            //Console.WriteLine("Data Received:");
             Console.Write(indata);
         }
-
     }
 }
