@@ -16,7 +16,7 @@ namespace lightcontrols
 
         public bool Write(LightControllerCommand command)
         {
-            Console.WriteLine("Sent: {0}", command.ToString());
+            Console.WriteLine(DateTime.Now + " Sent: {0}", command.ToString());
             try
             {
                 ActiveComPort.Write(command.ToString());
@@ -31,7 +31,7 @@ namespace lightcontrols
         }
         public bool Write(string output)
         {
-            Console.WriteLine("Sent: {0}", output);
+            Console.WriteLine(DateTime.Now + " Sent: {0}", output);
             try
             {
                 ActiveComPort.Write(output+"\r");
