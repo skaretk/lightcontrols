@@ -6,6 +6,8 @@ namespace lightcontrols
 {
     class FileMonitor : LightControlInterface, IDisposable
     {
+        Thread t;
+        bool run = false;
         public bool Read(string path)
         {
             Thread.Sleep(1);
@@ -71,15 +73,28 @@ namespace lightcontrols
         /// Add event handlers, and start monitoring the file
         /// </summary>
         public void Start()
-        {            
-            watcher.Changed += new FileSystemEventHandler(OnChanged);
-            watcher.Created += new FileSystemEventHandler(OnChanged);
-            watcher.Deleted += new FileSystemEventHandler(OnChanged);
-            watcher.Renamed += new RenamedEventHandler(OnRenamed);
+        {       
+            //watcher.Changed += new FileSystemEventHandler(OnChanged);
+            //watcher.Created += new FileSystemEventHandler(OnChanged);
+            //watcher.Deleted += new FileSystemEventHandler(OnChanged);
+            //watcher.Renamed += new RenamedEventHandler(OnRenamed);
             
             ClearFile(path);
-            watcher.EnableRaisingEvents = true;
+            run = true;
+            t = new Thread(new ThreadStart(ReadFile));
+            t.IsBackground = true;
+            t.Start();
+            //watcher.EnableRaisingEvents = true;
             Console.WriteLine("FileMonitor started");
+        }
+
+        public void ReadFile()
+        {
+            while (run)
+            {
+                Read(path);
+                Thread.Sleep(1000);
+            }
         }
 
         /// <summary>
@@ -87,11 +102,13 @@ namespace lightcontrols
         /// </summary>
         public void Stop()
         {
-            watcher.EnableRaisingEvents = false;
-            watcher.Changed += new FileSystemEventHandler(OnChanged);
-            watcher.Created += new FileSystemEventHandler(OnChanged);
-            watcher.Deleted += new FileSystemEventHandler(OnChanged);
-            watcher.Renamed += new RenamedEventHandler(OnRenamed);
+            run = false;
+            //watcher.EnableRaisingEvents = false;
+            //watcher.Changed += new FileSystemEventHandler(OnChanged);
+            //watcher.Created += new FileSystemEventHandler(OnChanged);
+            //watcher.Deleted += new FileSystemEventHandler(OnChanged);
+            //watcher.Renamed += new RenamedEventHandler(OnRenamed);
+            t.Join();
             Console.WriteLine("FileMonitor stopped");
         }
         
